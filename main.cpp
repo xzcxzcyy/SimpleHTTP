@@ -15,7 +15,7 @@
 
 using namespace std;
 
-void session_handler(int fd);
+void session_handler(int fd, const string &source_addr, int source_port);
 
 Config config;
 
@@ -53,6 +53,11 @@ int main() {
     int addrlen = sizeof(address);
     while (true) {
         int new_fd = accept(listen_fd, (sockaddr *) &address, (socklen_t *) &addrlen);
+        auto *pV4Addr = (sockaddr_in *) &address;
+        in_addr ipAddr = pV4Addr->sin_addr;
+        char addr_str[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &ipAddr, addr_str, INET_ADDRSTRLEN);
+        auto port = pV4Addr->sin_port;
 
         cout << "accepted successfully\n";
 
@@ -60,7 +65,8 @@ int main() {
             cerr << "cannot accept" << endl;
             return -1;
         }
-        trds.emplace_back(session_handler, new_fd);
+//        session_handler(new_fd, addr_str, port);
+        trds.emplace_back(session_handler, new_fd, addr_str, port);
     }
 
     /*auto client_stream = SocketStream(new_fd);
@@ -76,7 +82,8 @@ int main() {
 
 }
 
-void session_handler(int fd) {
+void session_handler(int fd, const string &source_addr, int source_port) {
+
     auto s_stream = SocketStream(fd);
     while (true) {
         auto[req_line, err] = s_stream.getline();
@@ -90,6 +97,10 @@ void session_handler(int fd) {
             if (method == "GET") {
                 string url, protocol_version;
                 ss >> url >> protocol_version;
+
+//                cout << "helloworld" << endl;
+                cout << "From " << source_addr << " : " << source_port << " " << req_line << endl;
+
                 if (url == "/") {
                     url.append(config.get_default_page());
                 }
@@ -97,14 +108,16 @@ void session_handler(int fd) {
                 if (!content_fin.is_open()) {
                     auto resp = Response(protocol_version, NotFound, Empty);
                     s_stream.send(resp.to_string());
+                    cout << "Result: 404" << endl;
                     continue;
                 }
                 string content_raw(std::istreambuf_iterator<char>{content_fin}, {});
                 auto resp = Response(protocol_version, Ok, Html).set_content(content_raw);
                 s_stream.send(resp.to_string());
+                cout << "Result: 200" << endl;
             }
         }
     }
-//    cout << "quitting\n";
+    cout << "Thread quitting" << endl;
 }
 
