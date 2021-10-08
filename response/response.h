@@ -15,6 +15,7 @@ enum ContentType {
 
 enum RespStatus {
     Ok,
+    NotFound,
 };
 
 class Response {

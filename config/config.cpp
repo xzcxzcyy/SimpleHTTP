@@ -14,8 +14,8 @@ bool Config::read_from_file() {
     if (!fin.is_open()) {
         return false;
     }
-    fin >> listen_addr >> listen_port >> main_dir;
-    return !listen_addr.empty() && (listen_port != 0) && !main_dir.empty();
+    fin >> listen_addr >> listen_port >> main_dir >> default_page;
+    return !listen_addr.empty() && (listen_port != 0) && !main_dir.empty() && !default_page.empty();
 }
 
 const std::string &Config::get_listen_addr() const {
@@ -28,4 +28,8 @@ int Config::get_listen_port() const {
 
 const std::string &Config::get_main_dir() const {
     return main_dir;
+}
+
+const std::string &Config::get_default_page() const {
+    return default_page;
 }

@@ -9,6 +9,8 @@
 
 class Config {
 public:
+    Config() = default;
+
     explicit Config(std::string config_path);
 
     bool read_from_file();
@@ -19,10 +21,15 @@ public:
 
     [[nodiscard]] const std::string &get_main_dir() const;
 
+    [[nodiscard]] const std::string &get_default_page() const;
+
 private:
     std::string listen_addr;
     int listen_port{};
     std::string main_dir;
+    std::string default_page;
+
+private:
     std::string config_path;
 };
 
