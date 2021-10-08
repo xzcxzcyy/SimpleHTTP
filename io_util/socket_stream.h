@@ -9,7 +9,7 @@
 
 class SocketStream {
 private:
-    static const long BufferSize = 128;
+    static const long BufferSize = 1024;
 
     const int sock_fd;
     char buffer[BufferSize]{};
