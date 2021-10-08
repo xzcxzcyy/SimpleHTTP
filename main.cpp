@@ -71,7 +71,7 @@ int main() {
             cerr << "cannot accept" << endl;
             return -1;
         }
-//        session_handler(new_fd, addr_str, port);
+
         trds.emplace_back(session_handler, new_fd, addr_str, port);
     }
 
@@ -92,8 +92,6 @@ void session_handler(int fd, const string &source_addr, int source_port) {
             if (method == "GET") {
                 string url, protocol_version;
                 ss >> url >> protocol_version;
-
-//                cout << "helloworld" << endl;
                 cout << "From " << source_addr << " : " << source_port << " " << req_line << endl;
 
                 if (url == "/") {
