@@ -9,8 +9,8 @@
 #include <unordered_map>
 
 enum ContentType {
-    Text,
-    Image,
+    Html,
+    Jpeg,
 };
 
 enum RespStatus {
@@ -23,8 +23,8 @@ private:
             {Ok, "200 OK"},
     };
     const std::unordered_map<ContentType, std::string> type_string{
-            {Text,  "text/html"},
-            {Image, "image/jpeg"},
+            {Html, "text/html"},
+            {Jpeg, "image/jpeg"},
     };
 
     std::string version;

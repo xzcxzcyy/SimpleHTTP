@@ -10,7 +10,7 @@
 
 SocketStream::SocketStream(int fd) : sock_fd(fd) {}
 
-std::string SocketStream::getline() {
+std::tuple<std::string, bool> SocketStream::getline() {
     std::string line;
 
     while (true) {
@@ -18,14 +18,14 @@ std::string SocketStream::getline() {
             cursor = 0;
             end = recv(sock_fd, buffer, BufferSize, 0);
             if (end <= 0) {
-                throw std::runtime_error("error recving from tcp socket.");
+                return {"", true};
             }
             continue;
         }
 
         if (buffer[cursor] == '\n') {
             cursor++;
-            return line;
+            return {line, false};
         } else if (buffer[cursor] == '\r') {
             cursor++;
             continue;

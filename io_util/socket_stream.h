@@ -6,6 +6,7 @@
 #define SRC_SOCKET_STREAM_H
 
 #include <string>
+#include <tuple>
 
 class SocketStream {
 private:
@@ -19,7 +20,7 @@ private:
 public:
     explicit SocketStream(int fd);
 
-    std::string getline();
+    std::tuple<std::string, bool> getline();
 
     void send(const std::string &msg) const;
 
