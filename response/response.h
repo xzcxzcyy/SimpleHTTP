@@ -17,6 +17,7 @@ enum ContentType {
 enum RespStatus {
     Ok,
     NotFound,
+    Moved,
 };
 
 class Response {
@@ -24,6 +25,7 @@ private:
     const std::unordered_map<RespStatus, std::string> status_string{
             {Ok, "200 OK"},
             {NotFound, "404 Not Found"},
+            {Moved, "302 Found"}
     };
     const std::unordered_map<ContentType, std::string> type_string{
             {Html, "Content-Type: text/html\r\n"},
@@ -35,11 +37,14 @@ private:
     RespStatus status;
     ContentType content_type;
     std::string content;
+    std::string location;
 
 public:
     Response(std::string version, RespStatus status, ContentType content_type);
 
     Response & set_content(std::string str);
+
+    Response & set_location(std::string location);
 
     std::string to_string();
 };

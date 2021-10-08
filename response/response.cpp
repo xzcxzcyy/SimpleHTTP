@@ -18,6 +18,14 @@ std::string Response::to_string() {
     ret.append("\r\n");
     ret.append(type_string.at(content_type));
     ret.append("Content-Length: ").append(std::to_string(content.length())).append("\r\n");
+    if (!location.empty()) {
+        ret.append("Location: ").append(location).append("\r\n");
+    }
     ret.append("\r\n").append(content);
     return ret;
+}
+
+Response &Response::set_location(std::string location) {
+    this->location = std::move(location);
+    return *this;
 }

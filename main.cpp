@@ -30,7 +30,13 @@ int main() {
     }
     int listen_fd;
     if ((listen_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        cerr << "cannot create socket\n";
+        cerr << "cannot create socket" << endl;
+        return -1;
+    }
+
+    int enable = 1;
+    if (setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) {
+        cerr << "setsockopt error" << endl;
         return -1;
     }
     sockaddr_in address{};
@@ -41,7 +47,7 @@ int main() {
     address.sin_port = htons(config.get_listen_port());
 
     if (bind(listen_fd, (sockaddr *) &address, sizeof(address)) < 0) {
-        cerr << "cannot bind\n";
+        cerr << "cannot bind" << endl;
         return -1;
     }
 
@@ -69,17 +75,6 @@ int main() {
         trds.emplace_back(session_handler, new_fd, addr_str, port);
     }
 
-    /*auto client_stream = SocketStream(new_fd);
-
-    while (true) {
-        auto [req_line, err] = client_stream.getline();
-        if (err || req_line.empty()) {
-            break;
-        }
-        client_stream.send(Response("HTTP/1.1", Ok, Text).set_content(req_line).to_string());
-        cout << req_line << endl;
-    }*/
-
 }
 
 void session_handler(int fd, const string &source_addr, int source_port) {
@@ -105,12 +100,22 @@ void session_handler(int fd, const string &source_addr, int source_port) {
                     url.append(config.get_default_page());
                 }
                 ifstream content_fin(config.get_main_dir() + url);
+
+                if (url == "/favicon.ico") {
+                    auto resp = Response(protocol_version, Moved, Empty)
+                            .set_location("https://www.google.com/favicon.ico");
+                    s_stream.send(resp.to_string());
+                    cout << "Result: 302" << endl;
+                    continue;
+                }
+
                 if (!content_fin.is_open()) {
                     auto resp = Response(protocol_version, NotFound, Empty);
                     s_stream.send(resp.to_string());
                     cout << "Result: 404" << endl;
                     continue;
                 }
+
                 string content_raw(std::istreambuf_iterator<char>{content_fin}, {});
                 auto resp = Response(protocol_version, Ok, Html).set_content(content_raw);
                 s_stream.send(resp.to_string());
