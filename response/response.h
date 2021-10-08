@@ -11,6 +11,7 @@
 enum ContentType {
     Html,
     Jpeg,
+    Empty,
 };
 
 enum RespStatus {
@@ -22,10 +23,12 @@ class Response {
 private:
     const std::unordered_map<RespStatus, std::string> status_string{
             {Ok, "200 OK"},
+            {NotFound, "404 Not Found"},
     };
     const std::unordered_map<ContentType, std::string> type_string{
-            {Html, "text/html"},
-            {Jpeg, "image/jpeg"},
+            {Html, "Content-Type: text/html\r\n"},
+            {Jpeg, "Content-Type: image/jpeg\r\n"},
+            {Empty, ""},
     };
 
     std::string version;

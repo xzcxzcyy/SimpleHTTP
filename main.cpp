@@ -94,7 +94,11 @@ void session_handler(int fd) {
                     url.append(config.get_default_page());
                 }
                 ifstream content_fin(config.get_main_dir() + url);
-
+                if (!content_fin.is_open()) {
+                    auto resp = Response(protocol_version, NotFound, Empty);
+                    s_stream.send(resp.to_string());
+                    continue;
+                }
                 string content_raw(std::istreambuf_iterator<char>{content_fin}, {});
                 auto resp = Response(protocol_version, Ok, Html).set_content(content_raw);
                 s_stream.send(resp.to_string());
