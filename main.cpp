@@ -13,6 +13,8 @@
 #include <cstring>
 #include <vector>
 #include "logger/logger.h"
+#include "mime/mime.h"
+
 
 using namespace std;
 
@@ -73,9 +75,8 @@ int main() {
             cerr << "cannot accept" << endl;
             return -1;
         }
-//        session_handler(new_fd, addr_str, port, logger);
-//        trds.emplace_back(session_handler, new_fd, addr_str, port, logger);
-        trds.push_back(thread(session_handler, new_fd, addr_str, port, std::ref(logger)));
+
+        trds.emplace_back(session_handler, new_fd, addr_str, port, std::ref(logger));
     }
 
 }
@@ -101,10 +102,12 @@ void session_handler(int fd, const string &source_addr, int source_port, Log &lo
                 if (url == "/") {
                     url.append(config.get_default_page());
                 }
-                ifstream content_fin(config.get_main_dir() + url);
+
+                string fullPath = config.get_main_dir() + url;
+                ifstream content_fin(fullPath);
 
                 if (url == "/favicon.ico") {
-                    auto resp = Response(protocol_version, Moved, Empty)
+                    auto resp = Response(protocol_version, Moved, "")
                             .set_location("https://www.baidu.com/favicon.ico");
                     s_stream.send(resp.to_string());
                     log_sstream << "Result 302";
@@ -113,7 +116,7 @@ void session_handler(int fd, const string &source_addr, int source_port, Log &lo
                 }
 
                 if (!content_fin.is_open()) {
-                    auto resp = Response(protocol_version, NotFound, Empty);
+                    auto resp = Response(protocol_version, NotFound, "");
                     s_stream.send(resp.to_string());
                     log_sstream << "Result 404";
                     logger.i(log_sstream.str());
@@ -121,10 +124,13 @@ void session_handler(int fd, const string &source_addr, int source_port, Log &lo
                 }
 
                 string content_raw(std::istreambuf_iterator<char>{content_fin}, {});
-                auto resp = Response(protocol_version, Ok, Html).set_content(content_raw);
+                string file_mime_type = mime::lookup(fullPath);
+
+                auto resp = Response(protocol_version, Ok, file_mime_type).set_content(content_raw);
                 s_stream.send(resp.to_string());
                 log_sstream << "Result 200";
                 logger.i(log_sstream.str());
+                //logger.i(resp.to_string());
             }
         }
     }

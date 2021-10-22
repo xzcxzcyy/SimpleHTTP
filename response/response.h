@@ -27,24 +27,26 @@ private:
             {NotFound, "404 Not Found"},
             {Moved, "302 Found"}
     };
+    /*
     const std::unordered_map<ContentType, std::string> type_string{
             {Html, "Content-Type: text/html\r\n"},
             {Jpeg, "Content-Type: image/jpeg\r\n"},
             {Empty, ""},
     };
+     */
 
     std::string version;
     RespStatus status;
-    ContentType content_type;
+    std::string content_type;
     std::string content;
     std::string location;
 
 public:
-    Response(std::string version, RespStatus status, ContentType content_type);
+    Response(std::string version, RespStatus status, std::string content_type);
 
     Response & set_content(std::string str);
 
-    Response & set_location(std::string location);
+    Response & set_location(std::string loc);
 
     std::string to_string();
 };
