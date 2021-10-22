@@ -12,15 +12,17 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include <vector>
+#include "logger/logger.h"
 
 using namespace std;
 
-void session_handler(int fd, const string &source_addr, int source_port);
+void session_handler(int fd, const string &source_addr, int source_port, Log &logger);
 
 Config config;
 
 int main() {
     vector<thread> trds;
+    Log logger;
 
     config = Config(string("./server_config.txt"));
     bool config_success = config.read_from_file();
@@ -71,13 +73,14 @@ int main() {
             cerr << "cannot accept" << endl;
             return -1;
         }
-
-        trds.emplace_back(session_handler, new_fd, addr_str, port);
+//        session_handler(new_fd, addr_str, port, logger);
+//        trds.emplace_back(session_handler, new_fd, addr_str, port, logger);
+        trds.push_back(thread(session_handler, new_fd, addr_str, port, std::ref(logger)));
     }
 
 }
 
-void session_handler(int fd, const string &source_addr, int source_port) {
+void session_handler(int fd, const string &source_addr, int source_port, Log &logger) {
 
     auto s_stream = SocketStream(fd);
     while (true) {
@@ -92,7 +95,8 @@ void session_handler(int fd, const string &source_addr, int source_port) {
             if (method == "GET") {
                 string url, protocol_version;
                 ss >> url >> protocol_version;
-                cout << "From " << source_addr << " : " << source_port << " " << req_line << endl;
+                stringstream log_sstream;
+                log_sstream << "From " << source_addr << ":" << source_port << " " << req_line << "\t";
 
                 if (url == "/") {
                     url.append(config.get_default_page());
@@ -101,26 +105,29 @@ void session_handler(int fd, const string &source_addr, int source_port) {
 
                 if (url == "/favicon.ico") {
                     auto resp = Response(protocol_version, Moved, Empty)
-                            .set_location("https://www.google.com/favicon.ico");
+                            .set_location("https://www.baidu.com/favicon.ico");
                     s_stream.send(resp.to_string());
-                    cout << "Result: 302" << endl;
+                    log_sstream << "Result 302";
+                    logger.i(log_sstream.str());
                     continue;
                 }
 
                 if (!content_fin.is_open()) {
                     auto resp = Response(protocol_version, NotFound, Empty);
                     s_stream.send(resp.to_string());
-                    cout << "Result: 404" << endl;
+                    log_sstream << "Result 404";
+                    logger.i(log_sstream.str());
                     continue;
                 }
 
                 string content_raw(std::istreambuf_iterator<char>{content_fin}, {});
                 auto resp = Response(protocol_version, Ok, Html).set_content(content_raw);
                 s_stream.send(resp.to_string());
-                cout << "Result: 200" << endl;
+                log_sstream << "Result 200";
+                logger.i(log_sstream.str());
             }
         }
     }
-    cout << "Thread quitting" << endl;
+    logger.i("Thread quitting..");
 }
 
