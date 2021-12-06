@@ -7,6 +7,9 @@
 
 #include <string>
 
+/**
+ * Global config of HTTP server.
+ */
 class Config {
 public:
     Config() = default;

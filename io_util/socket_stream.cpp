@@ -10,6 +10,10 @@
 
 SocketStream::SocketStream(int fd) : sock_fd(fd) {}
 
+/**
+ * Get one line from socket. Will block when empty. \\n and \\r will be discarded.
+ * @return [content, false] on success; otherwise returns ["", true];
+ */
 std::tuple<std::string, bool> SocketStream::getline() {
     std::string line;
 
@@ -37,6 +41,10 @@ std::tuple<std::string, bool> SocketStream::getline() {
     }
 }
 
+/**
+ * Send message. Empty message shall be discarded.
+ * @param msg Message to be sent.
+ */
 void SocketStream::send(const std::string &msg) const {
     if (!msg.empty()) {
         write(sock_fd, msg.c_str(), msg.length());

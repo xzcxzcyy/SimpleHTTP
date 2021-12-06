@@ -6,14 +6,28 @@
 
 #include <utility>
 
+/**
+ * Build a response.
+ * @param version HTTP version.
+ * @param status HTTP status.
+ * @param content_type MIME type.
+ */
 Response::Response(std::string version, RespStatus status, std::string content_type)
         : version(std::move(version)), status(status), content_type(std::move(content_type)) {}
 
+/**
+ * Set content of the response.
+ * @param str Content payload.
+ * @return Reference to the response.
+ */
 Response & Response::set_content(std::string str) {
     content = std::move(str);
     return *this;
 }
 
+/**
+ * String generator.
+ */
 std::string Response::to_string() {
     std::string ret;
     ret.append(version).append(" ").append(status_string.at(status));

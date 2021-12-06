@@ -8,18 +8,15 @@
 #include <string>
 #include <unordered_map>
 
-enum ContentType {
-    Html,
-    Jpeg,
-    Empty,
-};
-
 enum RespStatus {
     Ok,
     NotFound,
     Moved,
 };
 
+/**
+ * HTTP response.
+ */
 class Response {
 private:
     const std::unordered_map<RespStatus, std::string> status_string{
@@ -27,13 +24,6 @@ private:
             {NotFound, "404 Not Found"},
             {Moved, "302 Found"}
     };
-    /*
-    const std::unordered_map<ContentType, std::string> type_string{
-            {Html, "Content-Type: text/html\r\n"},
-            {Jpeg, "Content-Type: image/jpeg\r\n"},
-            {Empty, ""},
-    };
-     */
 
     std::string version;
     RespStatus status;

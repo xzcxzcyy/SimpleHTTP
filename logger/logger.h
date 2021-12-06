@@ -8,6 +8,9 @@
 #include <mutex>
 #include <string>
 
+/**
+ * Thread-safe log.
+ */
 class Log {
 private:
     std::mutex mu;

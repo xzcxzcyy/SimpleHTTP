@@ -7,8 +7,16 @@
 #include <string>
 #include <utility>
 
+/**
+ * Constructor of Config.
+ * @param config_path Path to config file.
+ */
 Config::Config(std::string config_path) : config_path(std::move(config_path)) {}
 
+/**
+ * Read config from file.
+ * @return Whether it is a successful read.
+ */
 bool Config::read_from_file() {
     std::ifstream fin = std::ifstream(config_path);
     if (!fin.is_open()) {

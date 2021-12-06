@@ -8,6 +8,9 @@
 #include <string>
 #include <tuple>
 
+/**
+ * Abstraction of UNIX socket.
+ */
 class SocketStream {
 private:
     static const long BufferSize = 1024;
