@@ -106,15 +106,6 @@ void session_handler(int fd, const string &source_addr, int source_port, Log &lo
                 string fullPath = config.get_main_dir() + url;
                 ifstream content_fin(fullPath);
 
-                if (url == "/favicon.ico") {
-                    auto resp = Response(protocol_version, Moved, "")
-                            .set_location("https://www.baidu.com/favicon.ico");
-                    s_stream.send(resp.to_string());
-                    log_sstream << "Result 302";
-                    logger.i(log_sstream.str());
-                    continue;
-                }
-
                 if (!content_fin.is_open()) {
                     auto resp = Response(protocol_version, NotFound, "");
                     s_stream.send(resp.to_string());
